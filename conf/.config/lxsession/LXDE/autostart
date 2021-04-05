@@ -1,0 +1,3 @@
+@lxpanel --profile LXDE
+@terminator -l docker -m
+@pcmanfm --desktop --profile LXDE

@@ -1,0 +1,53 @@
+[global_config]
+  handle_size = 5
+  geometry_hinting = True
+[keybindings]
+  zoom_normal = <Primary>F11
+  cycle_next = twosuperior
+  cycle_prev = <Primary>twosuperior
+  go_next = <Primary>Page_Down
+  go_prev = <Primary>Page_Up
+  toggle_zoom = F12
+[profiles]
+  [[default]]
+    cursor_color = "#aaaaaa"
+    copy_on_selection = True
+[layouts]
+  [[default]]
+    [[[child1]]]
+      parent = window0
+      type = Terminal
+    [[[window0]]]
+      parent = ""
+      type = Window
+  [[docker]]
+    [[[child0]]]
+      type = Window
+      parent = ""
+      order = 0
+      position = 138:161
+      maximised = False
+      fullscreen = False
+      size = 734, 452
+      title = /bin/bash
+      last_active_term = d18bc410-2a41-4a78-92ec-b2f2286cc617
+      last_active_window = True
+    [[[child1]]]
+      type = HPaned
+      parent = child0
+      order = 0
+      position = 364
+      ratio = 0.4993141289437586
+    [[[terminal2]]]
+      type = Terminal
+      parent = child1
+      order = 0
+      profile = default
+      uuid = 8f367ec6-1a8d-46b5-be34-9f30138e858d
+    [[[terminal3]]]
+      type = Terminal
+      parent = child1
+      order = 1
+      profile = default
+      uuid = d18bc410-2a41-4a78-92ec-b2f2286cc617
+[plugins]

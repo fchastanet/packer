@@ -1,0 +1,71 @@
+#!/bin/bash
+if [[ "$(type -t __git_ps1 2>/dev/null)" != "function" ]]; then
+    return
+fi
+
+declare COLOR_RESET="\e[17m"
+declare COLOR_NORMAL="\e[0m"
+declare COLOR_RED="\e[31m"
+declare COLOR_GREEN="\e[32m"
+declare COLOR_MAGENTA="\e[35m"
+declare COLOR_CYAN="\e[96m"
+declare COLOR_YELLOW="\e[93m"
+declare COLOR_WHITE="\e[37m"
+
+# display a smiley following last command executed
+declare SMILEY="${COLOR_WHITE}:)${COLOR_NORMAL}"
+declare FROWNY="${COLOR_RED}:(${COLOR_NORMAL}"
+declare SELECT="if [ \$? = 0 ]; then echo \"${SMILEY}\"; else echo \"${FROWNY}\"; fi"
+
+##### History control
+shopt -s histappend
+export HISTCONTROL=ignorespace
+# max number of commands stored in history during a session
+export HISTSIZE=1000
+# max number of commands stored in the history file (for all sessions)
+export HISTFILESIZE=2000
+
+# removes all duplicates and yet preserves chronology within each terminal!
+hfix() {
+    history -a &&\
+    history | sort -k2 -k1nr | uniq -f1 | sort -n | cut -c8- > ~/.tmp$$ &&\
+    history -c &&\
+    history -r ~/.tmp$$ &&\
+    rm ~/.tmp$$
+}
+##### End history control
+
+buildPrompt() {
+    hfix
+    parseGitBranch
+    local host
+    if [[ -z "${CONTAINER_NAME}" ]]; then
+        host="[${COLOR_GREEN}HOST${COLOR_NORMAL}]"
+    else
+        host="[${COLOR_RED}DOCKER${COLOR_NORMAL}]"
+    fi
+    export PS1="${COLOR_RESET}${host} ${COLOR_GREEN}\u@${CONTAINER_NAME:-\h} \`${SELECT}\` ${COLOR_MAGENTA}\w ${GIT_PROMPT}${COLOR_NORMAL} \n\$ "
+}
+# in case bash_profile is reloaded do not add again hfix
+if [[ ! ${PROMPT_COMMAND} =~ .*buildPrompt.* ]]; then
+    PROMPT_COMMAND="${PROMPT_COMMAND} buildPrompt;"
+fi
+
+parseGitBranch() {
+  local branchName
+
+  # get branch name from git
+  #branchName=$( git symbolic-ref --short -q HEAD 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')
+	branchName=$(__git_ps1 "%s")
+	if [[ -z "${branchName}" ]]; then
+		GIT_PROMPT=""
+		return
+	fi
+	if [[ "${__LAST_GIT_BRANCH}" = "${branchName}" ]]; then
+		GIT_PROMPT="${__LAST_GIT_PROMPT}"
+		return
+	fi
+	export __LAST_GIT_BRANCH="${branchName}"
+	export __LAST_GIT_PROMPT="${COLOR_CYAN}(${branchName})${COLOR_NORMAL}"
+	GIT_PROMPT="${__LAST_GIT_PROMPT}"
+}

@@ -1,0 +1,52 @@
+#cloud-config
+autoinstall:
+  version: 1
+  locale: en_US
+  keyboard:
+    layout: fr
+    toggle: null
+    variant: ''
+  network:
+    network:
+      version: 2
+      ethernets:
+        enp0s3:
+          dhcp4: true
+        enp0s8:
+          dhcp4: true
+  storage:
+    layout:
+      name: lvm
+  apt:
+    geoip: true
+    preserve_sources_list: false
+    primary:
+    - arches: [amd64, i386]
+      uri: http://fr.archive.ubuntu.com/ubuntu
+    - arches: [default]
+      uri: http://ports.ubuntu.com/ubuntu-ports
+  users:
+    - name: vagrant
+      sudo: ALL=(ALL) NOPASSWD:ALL
+      lock_passwd: false
+      groups: sudo, vagrant
+      # vagrant generated with mkpasswd --method=SHA-512 --rounds=4096
+      password: '$6$rounds=4096$ZlUQ7YRjO$oWdq2vjH1b2KP03rftKFsby0SX8hJqoMha6VstJWc6BiiGkprg1muk6uFtUUGRnsZMft2nndG5sS3YpZv5sh6.'
+      shell: /bin/bash
+  identity:
+    hostname: ubuntu-server
+    username: vagrant
+    # vagrant generated with mkpasswd --method=SHA-512 --rounds=4096
+    password: '$6$rounds=4096$ZlUQ7YRjO$oWdq2vjH1b2KP03rftKFsby0SX8hJqoMha6VstJWc6BiiGkprg1muk6uFtUUGRnsZMft2nndG5sS3YpZv5sh6.'
+  ssh:
+    install-server: true
+    allow-pw: true
+    authorized-keys: []
+  user-data:
+    disable_root: false
+  late-commands:
+    # While building in VMWare, restart after installation causes change in IP address of the instance. This leads packer build to timeout awaiting SSH connection.
+    # To fix this issue, we can configure MAC address to be send as identifier in DHCP request.
+    - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac\n      nameservers:\n          addresses: [10.110.2.253, 8.8.8.8, 8.8.4.4]/" /target/etc/netplan/00-installer-config.yaml'
+    - 'netplan generate && netplan apply'
+    - 'echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /target/etc/sudoers.d/ubuntu'

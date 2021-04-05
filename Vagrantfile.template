@@ -1,0 +1,126 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# this file is used when using make start or make start-local
+
+VAGRANT_BOX = "@@@VAGRANT_BOX@@@"
+VAGRANT_BOX_VERSION = "@@@VAGRANT_BOX_VERSION@@@"
+VM_NAME = "@@@VM_NAME@@@"
+HOST_USERNAME = "#{ENV['USERNAME'] || `whoami`}"
+CPU = 4
+MEMORY = 8 * 1024
+
+disk_variant = 'Standard'
+disk_size = 150 * 1024
+disk_filename = "~/@@@VM_NAME@@@_@@@VAGRANT_BOX_VERSION@@@_userData.vdi"
+
+# add required plugins here
+required_plugins = %w( vagrant-timezone vagrant-persistent-storage )
+if !VAGRANT_BOX.include?("-serverX11")
+  required_plugins.push('vagrant-vbguest')
+end
+
+# install required plugins if necessary
+if ARGV[0] == 'up'
+    missing_plugins = []
+    required_plugins.each do |plugin|
+        missing_plugins.push(plugin) unless Vagrant.has_plugin? plugin
+    end
+    if ! missing_plugins.empty?
+        install_these = missing_plugins.join(' ')
+        puts "Found missing plugins: #{install_these}.  Installing ..."
+        puts "Installing plugins: #{install_these}"
+        # on linux, it would require sudo, but we target windows here
+        if system "vagrant plugin install #{install_these}"
+            # at the end restart this process
+            # Note : exec replaces current process
+            exec "vagrant #{ARGV.join(' ')}"
+        else
+            abort "Installation of one or more plugins has failed. Aborting."
+        end
+    end
+end
+
+Vagrant.configure("2") do |config|
+  if Vagrant.has_plugin?("vagrant-timezone")
+    config.timezone.value = "Europe/Paris"
+  end
+  config.vm.synced_folder '~/', '/hostHome'
+  config.vm.synced_folder File.dirname(__FILE__) + "/conf", '/home/vagrantConf'
+  if File.directory?(File.dirname(__FILE__) + "/confExternal")
+    config.vm.synced_folder File.dirname(__FILE__) + "/confExternal", '/home/vagrantConfExternal'
+  end
+
+  config.persistent_storage.enabled = true
+  config.persistent_storage.location = disk_filename
+  config.persistent_storage.variant = disk_variant
+  config.persistent_storage.use_lvm = true
+  config.persistent_storage.size = disk_size
+  config.persistent_storage.filesystem = 'ext4'
+
+  config.vm.network "private_network", type: "dhcp"
+
+  config.vm.network "forwarded_port", guest: 80,   host_ip: "127.0.0.1", host: 80,   protocol: "tcp", auto_correct: true, id: "apache"
+  config.vm.network "forwarded_port", guest: 81,   host_ip: "127.0.0.1", host: 81,   protocol: "tcp", auto_correct: true, id: "apache-alternate"
+  config.vm.network "forwarded_port", guest: 443,  host_ip: "127.0.0.1", host: 443,  protocol: "tcp", auto_correct: true, id: "apache-https"
+  config.vm.network "forwarded_port", guest: 3306, host_ip: "127.0.0.1", host: 3306, protocol: "tcp", auto_correct: true, id: "mysql"
+  config.vm.network "forwarded_port", guest: 8025, host_ip: "127.0.0.1", host: 8025, protocol: "tcp", auto_correct: true, id: "mail"
+  config.vm.network "forwarded_port", guest: 80,   host_ip: "127.0.0.1", host: 90,   protocol: "tcp", auto_correct: true, id: "cklm-apache"
+  config.vm.network "forwarded_port", guest: 443,  host_ip: "127.0.0.1", host: 444,  protocol: "tcp", auto_correct: true, id: "cklm-apache-https"
+  config.vm.network "forwarded_port", guest: 3308, host_ip: "127.0.0.1", host: 3308, protocol: "tcp", auto_correct: true, id: "cklm-mysql"
+  config.vm.network "forwarded_port", guest: 1200, host_ip: "127.0.0.1", host: 1200, protocol: "tcp", auto_correct: true, id: "chrome extension"
+
+  config.vm.provision "initVM",
+    type: "shell",
+    privileged: true,
+    path: File.dirname(__FILE__) + "/scripts-vagrant/vm-bootstrap.sh",
+    run: 'always',
+    env: {
+      "HOST_USERNAME" => "#{HOST_USERNAME}",
+      "VAGRANT_PROVISIONING" => "1",
+      "VM_BOOTSTRAP_CONF_FILES" => "/home/vagrantConf"
+    }
+
+  config.vm.define VM_NAME do |virtualbox|
+    virtualbox.vm.box = VAGRANT_BOX
+    virtualbox.vm.box_version = VAGRANT_BOX_VERSION
+
+    config.vm.provider :virtualbox do |v, override|
+        v.name = VM_NAME
+        v.memory = MEMORY
+        v.cpus = CPU
+
+        # vm other hardware options
+        v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+
+        v.customize ["modifyvm", :id, "--cpus", CPU]
+        v.customize ["modifyvm", :id, "--memory", MEMORY]
+        v.customize ["modifyvm", :id, "--audio", "none"]
+
+        if VAGRANT_BOX.include?("-serverX11")
+            v.gui = false
+            v.customize ["modifyvm", :id, "--graphicscontroller", "none"]
+        else
+            v.gui = true
+            # Allow the VM to display the desktop environment
+            v.customize ["modifyvm", :id, "--graphicscontroller", "vmsvga"]
+            v.customize ["modifyvm", :id, "--accelerate2dvideo", "off"]
+            # Enable, if Guest Additions are installed, whether hardware 3D acceleration should be available
+            # gnome requires 3d enabled
+            v.customize ["modifyvm", :id, "--accelerate3d", "on"]
+            v.customize ["modifyvm", :id, "--monitorcount", "1"]
+        end
+
+        # Enabling the I/O APIC is required for 64-bit guest operating systems, especially Windows Vista;
+        # it is also required if you want to use more than one virtual CPU in a VM.
+        v.customize ["modifyvm", :id, "--ioapic", "on"]
+        v.customize ["modifyvm", :id, "--vram", 128]
+        v.customize ["modifyvm", :id, "--usb", "off"]
+        # disable remote desktop
+        v.customize ["modifyvm", :id, "--vrde", "off"]
+
+        # Setup copy/paste
+        v.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+        v.customize ["modifyvm", :id, "--draganddrop", "bidirectional"]
+    end
+  end
+end

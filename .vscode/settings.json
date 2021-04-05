@@ -1,0 +1,20 @@
+{
+  "files.exclude": {
+    "./logs/*": true,
+    "./iso/*": true,
+    "./output-virtualbox-*/*": true,
+    "./packer_cache/*": true,
+    "./vendor/*": true,
+    "./.vagrant/*": true,
+    "./confExternal/*": true
+  },
+  "search.exclude": {
+    "./logs/*": true,
+    "./iso/*": true,
+    "./output-virtualbox-*/*": true,
+    "./packer_cache/*": true,
+    "./vendor/*": true,
+    "./.vagrant/*": true,
+    "./confExternal/*": true
+  }
+}

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+[[ -f /home/vagrant/.bash-tools/.env ]] && source /home/vagrant/.bash-tools/.env
+[[ -f /home/vagrant/.env ]] && source /home/vagrant/.env
+
+CURRENT_DIR=$( cd "$( readlink -e "${BASH_SOURCE[0]%/*}" )" && pwd )
+# shellcheck source=conf/.bin/Utils.sh
+source "${CURRENT_DIR}/Utils.sh"
+
+initBashTools() {
+  PROJECTS_DIR="/home/vagrant/projects"
+  if [[ ! -d "${PROJECTS_DIR}/bash-tools" ]]; then
+      echo "cloning bash-tools ..."
+      (
+          mkdir -p "${PROJECTS_DIR}" &&\
+          git clone git@github.com:fchastanet/bash-tools.git "${PROJECTS_DIR}/bash-tools"
+          cd "${PROJECTS_DIR}/bash-tools"
+          ./install.sh
+          sed -i \
+            -e "s@^BASH_TOOLS_FOLDER=.*@BASH_TOOLS_FOLDER=$(pwd)@g" \
+            -e "s@^S3_BASE_URL=.*@S3_BASE_URL=s3://ck-dev-frsa-devsql/exports/@g" \
+            ~/.bash-tools/.env
+      )
+  fi
+}
+sudo -E -u vagrant bash -c "$(declare -f initBashTools); initBashTools"
