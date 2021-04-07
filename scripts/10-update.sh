@@ -26,6 +26,7 @@ retry apt install -y -q --no-install-recommends \
     openssl \
     parallel \
     putty-tools \
+    pv \
     unzip \
     vim \
     vim-gui-common \

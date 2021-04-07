@@ -33,6 +33,8 @@ echo "$(tput sgr0)(*) code -- will launch visual studio code using xming/VcXsrv"
 
 if [[ -d /home/vagrant/projects/bash-tools/bin ]]; then
     echo "$(tput sgr0)(*) cli -- tool to connect to your containers"
+    echo "$(tput sgr0)(*) dbImport -- tool to import database from aws or Mizar"
+    echo "$(tput sgr0)(*) dbQueryAllDatabases -- tool to execute a query on multiple databases"
 else
   echo "$(tput sgr0)(*) initBashTools -- to initialize bash tools (cli, dbImport, dbQueryAllDatabases, ...)"
 fi

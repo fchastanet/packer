@@ -16,6 +16,7 @@ fi
 USERNAME=${USERNAME:-vagrant}
 
 echo "==> install drivers for SVGA"
+# @see https://blogs.oracle.com/scoter/oracle-vm-virtualbox-61-3d-acceleration-for-ubuntu-1804-and-2004-virtual-machines
 # Install  required packages for building kernel modules.
 retry apt-get install -y -q --no-install-recommends \
   build-essential \
