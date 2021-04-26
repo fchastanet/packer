@@ -110,5 +110,12 @@ export NVM_DIR="/usr/local/nvm"
 
 [[ -f "${HOME}/.motd" ]] && source "${HOME}/.motd"
 
+# enable autojump
+source /usr/share/autojump/autojump.sh
+
+# kubeps1
+source /opt/kubeps1/kube-ps1.sh
+PS1='[\u@\h \W $(kube_ps1)]\$ '
+
 # be sure it ends without any error code
 true

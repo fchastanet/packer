@@ -219,8 +219,9 @@ configureV4() {
     ${USERHOME}/.local \
     ${USERHOME}/.tmuxinator
 
-  cp ${VM_BOOTSTRAP_CONF_FILES}/etc/cron.hourly/* /etc/cron.hourly
-  chmod 755 /etc/cron.hourly/*
+  cp ${VM_BOOTSTRAP_CONF_FILES}/etc/cron.* /etc
+  chmod +x /etc/cron.*/*
+  /etc/init.d/cron reload
 
   # create file to avoid setting this part next time
   echo $(date) > ${USERHOME}/.packer.doNotDelete/v4

@@ -16,8 +16,3 @@ mv /var/lib/docker/* ${USERHOME}/docker-files || true
 rm -Rf /var/lib/docker || true
 ln -s ${USERHOME}/docker-files /var/lib/docker
 service docker start
-
-echo "installing docker-compose ${DOCKER_COMPOSE_VERSION}"
-retry curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose

@@ -30,6 +30,7 @@ echo "$(tput sgr0)Useful commands:"
 echo "$(tput sgr0)(*) jetbrains-toolbox -- to install Phpstorm, ..."
 echo "$(tput sgr0)(*) phpstorm -- will launch it using xming/VcXsrv"
 echo "$(tput sgr0)(*) code -- will launch visual studio code using xming/VcXsrv"
+echo "$(tput sgr0)(*) autojump -- j <directory> to easily change directory (see https://www.linode.com/docs/guides/faster-file-navigation-with-autojump/)"
 
 if [[ -d /home/vagrant/projects/bash-tools/bin ]]; then
     echo "$(tput sgr0)(*) cli -- tool to connect to your containers"
@@ -37,5 +38,19 @@ if [[ -d /home/vagrant/projects/bash-tools/bin ]]; then
     echo "$(tput sgr0)(*) dbQueryAllDatabases -- tool to execute a query on multiple databases"
 else
   echo "$(tput sgr0)(*) initBashTools -- to initialize bash tools (cli, dbImport, dbQueryAllDatabases, ...)"
+fi
+if [[ -f /var/log/automatic-upgrade ]]; then
+  echo "$(tput setaf 1)(*) Weekly Automatic upgrade is failing -- please check logs /var/log/automatic-upgrade"
+fi
+if [[ -f /var/log/automatic-upgrade-success ]]; then
+  display_date_ago() {
+    (
+      cd /tmp
+      git init -q
+      git -c user.email=0 -c user.name=0 commit -q -m 0 --allow-empty --date="$1"
+      git show --format=%ar
+    )
+  }
+  echo "$(tput setaf 2)(*) Weekly Automatic upgrade success -- last execution date: $(display_date_ago "$(date -r /var/log/automatic-upgrade-success)")"
 fi
 echo "$(tput sgr0)"

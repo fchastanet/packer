@@ -16,7 +16,7 @@ SCRIPTS_DESKTOP_FILES        := $(shell find "$(THIS_DIR)/scripts-desktop" -type
 # $ make BOX_VERSION=1.0.0 HEADLESS=false USER="customUser" BOX="box-bionic64" CLOUD_TOKEN="verysecrettoken" build
 # use this one if your vagrant cloud token is specifed in the file vagrant.token
 # $ make BOX_VERSION=1.0.0 HEADLESS=false USER="customUser" BOX="box-bionic64" build
-BOX_VERSION     ?= 3.0.1
+BOX_VERSION     ?= 3.0.2
 HEADLESS        ?= true
 CLOUD_TOKEN     ?= $(shell [[ -f vagrant.token ]] && cat vagrant.token || echo "no key provided")
 PROVIDER        ?= virtualbox
