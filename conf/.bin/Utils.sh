@@ -113,8 +113,8 @@ Functions::checkDnsHostname() {
 
     if [ "${returnCode}" = "0" ]; then
         # get ip from ping outputcallCommandSafely
-        # under windows: Pinging host.test.lan [127.0.0.1] with 32 bytes of data
-        # under linux: PING host.test.lan (127.0.1.1) 56(84) bytes of data.
+        # under windows: Pinging willywonka.crossknowledge.lan [127.0.0.1] with 32 bytes of data
+        # under linux: PING willywonka.crossknowledge.lan (127.0.1.1) 56(84) bytes of data.
         local ip
         ip=$(echo ${COMMAND_OUTPUT} | grep -i ping | grep -Eo '[0-9.]{4,}' | head -1)
 

@@ -130,16 +130,6 @@ configure() {
     done
     chmod 755 ${USERHOME}/.bin/*
 
-    # configure tmuxinator if needed
-    if [[ ! -f ${USERHOME}/.bin/tmuxinator.bash ]]; then
-      (
-        mkdir -p ${USERHOME}/.bin
-        retry curl https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.bash -o ${USERHOME}/.bin/tmuxinator.bash
-        mkdir -p ${USERHOME}/.config/fish/completions
-        retry curl https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.fish -o ${USERHOME}/.config/fish/completions/tmuxinator.fish
-      )
-    fi
-
     # Install ssh keys
     [[ -f ${USERHOME}/.ssh/authorized_keys ]] && cp ${USERHOME}/.ssh/authorized_keys ${USERHOME}/.ssh/authorized_keys_vagrant
     echo "=> copy host .ssh files to vagrant home"
@@ -219,18 +209,20 @@ configureV4() {
     ${USERHOME}/.local \
     ${USERHOME}/.tmuxinator
 
-  cp ${VM_BOOTSTRAP_CONF_FILES}/etc/cron.hourly/* /etc/cron.hourly
-  chmod 755 /etc/cron.hourly/*
-
   # create file to avoid setting this part next time
   echo $(date) > ${USERHOME}/.packer.doNotDelete/v4
 }
 [[ ! -f ${USERHOME}/.packer.doNotDelete/v4 ]] && configureV4
 
+cp ${VM_BOOTSTRAP_CONF_FILES}/etc/cron.* /etc
+chmod +x /etc/cron.*/*
+/etc/init.d/cron reload
+
 # upgrade system
 retry apt-get update -y --fix-missing -o Acquire::ForceIPv4=true
 retry apt-get upgrade -y
 retry apt-get dist-upgrade -y
+/etc/cron.weekly/upgrade
 
 # execute external conf post install
 [[ -f ${USERHOME}/.externalConfPostInstall.sh ]] && source ${USERHOME}/.externalConfPostInstall.sh

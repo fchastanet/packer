@@ -79,5 +79,3 @@ sshKillAllTunnel() {
 alias ssh_kill_all_tunnel='sshKillAllTunnel'
 
 alias restart-VBoxClient="killall VBoxClient && VBoxClient-all"
-
-alias upgrade='sudo apt update && sudo apt upgrade -y && npm install -g npm && npm -g upgrade && sudo composer self-update && composer global update && sudo apt autoremove -y'

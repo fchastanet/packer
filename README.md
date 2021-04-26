@@ -458,7 +458,7 @@ BOX_FILE_PATH=output-virtualbox-04-${DESKTOP}/ubuntu-20.04.1-${DESKTOP}.box
 BOX_NAME="ubuntu-${DESKTOP}"
 VM_NAME="packer-dev-env-${DESKTOP}"
 
-vagrant box remove ${BOX_NAME} --all || true
+vagrant box remove -f ${BOX_NAME} --all || true
 vagrant box add --force --name ${BOX_NAME} "${BOX_FILE_PATH}"
 make Vagrantfile
 # remove version from Vagrant file

@@ -25,8 +25,7 @@ This image contains:
 
 Special features:
 
-- apt daily updates disabled
-- release upgrader disabled
+- special weekly upgrade cron (upgrade composer packages, manually github installed programs, apt, node, npm packages, snap packages, ...)
 - IPv6 enabled as chrome dev tools need it
 - windows management : unity or lxde
 - screen lock disabled
@@ -41,6 +40,12 @@ Special features:
 ${imageDesktopDesc}
 
 ## Releases
+
+### V3.0.2
+
+Release Date: 2021-04-27
+Added autojump
+restored autoupgrade + upgrade of npm, composer packages and more
 
 ### V3.0.1
 

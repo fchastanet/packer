@@ -36,7 +36,7 @@ if [ ! -f "${BOX_PATH}" ]; then
 fi
 
 # remove all the versioned boxes
-vagrant box remove ${BOX_NAME} --all || true
+vagrant box remove -f ${BOX_NAME} --all || true
 # add the local box to registry
 vagrant box add --force --name ${BOX_NAME} ${BOX_PATH}
 

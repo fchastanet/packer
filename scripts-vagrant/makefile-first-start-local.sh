@@ -7,7 +7,7 @@ BOX_FILE="output-virtualbox-${DESKTOP}/${UBUNTU_VERSION}-${BOX_VERSION}-${DESKTO
 BOX=${BOX}-${DESKTOP}-${BOX_VERSION}
 
 # remove all the versioned boxes
-vagrant box remove ${BOX} --all || true
+vagrant box remove -f ${BOX} --all || true
 # add the local box to registry
 vagrant box add --force --name ${BOX} ${BOX_FILE}
 

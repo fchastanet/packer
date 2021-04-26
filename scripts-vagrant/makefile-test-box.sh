@@ -31,7 +31,7 @@ function cleanBox {
         cd "${ROOTDIR}/tests"
         vagrant destroy -f || true
         rm -rf Vagrantfile .vagrant || true
-        vagrant box remove "${BOX_NAME}" || true
+        vagrant box remove -f "${BOX_NAME}" || true
         rm -f "test_userData.vdi" || true
         vagrant global-status --prune
     )

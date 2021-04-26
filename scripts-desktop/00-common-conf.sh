@@ -13,8 +13,9 @@ echo "USERGROUP=${USERGROUP}"
 
 echo "==> ensure we have last ubuntu version"
 retry apt-get -y update -o Acquire::ForceIPv4=true
-# dist upgrade to lts
+echo "==> dist upgrade to last version (not lts)"
 retry apt-get install -y -q ubuntu-release-upgrader-core
+sed -i -e 's/^Prompt=.*$/Prompt=normal/' /etc/update-manager/release-upgrades
 do-release-upgrade || true
 
 echo "==> configure fr keyboard"

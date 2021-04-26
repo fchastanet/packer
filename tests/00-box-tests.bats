@@ -11,13 +11,11 @@ import bash-framework/Version
 BASE_USER=vagrant
 OS_TYPE="Ubuntu"
 OS_VERSION="20.04.2"
-EXPECTED_BOX_VERSION="3.0.0"
+EXPECTED_BOX_VERSION="3.0.2"
 MINIMAL_DOCKER_VERSION="19.03.12"
-MINIMAL_DOCKER_COMPOSE_VERSION="1.28.6"
 MINIMAL_COMPOSER_VERSION="1.28.2"
 MINIMAL_NODE_VERSION="15.3.0"
 MINIMAL_NPM_VERSION="7.0.14"
-MINIMAL_AWS_VERSION="2.1.33"
 
 execute_vagrant_ssh_command() {
     vagrant ssh -c "${*}" -- -n -T
@@ -81,16 +79,6 @@ execute_vagrant_ssh_command() {
   [[ ${status} -ge 0 ]]
 }
 
-@test "Docker Compose is in the PATH and executable" {
-  execute_vagrant_ssh_command "which docker-compose"
-}
-
-@test "Docker Compose minimal version" {
-  version=$(execute_vagrant_ssh_command "docker-compose -v | sed -rn 's/docker-compose version ([^,]+),.*/\1/p'")
-  run Version::compare ${version:-1} ${MINIMAL_DOCKER_COMPOSE_VERSION}
-  [[ ${status} -ge 0 ]]
-}
-
 @test "Composer minimal version" {
   version=$(execute_vagrant_ssh_command "composer --version | sed -E -e 's#Composer version ([^ ]+).*#\1#'")
   run Version::compare "${version:-1}" "${MINIMAL_COMPOSER_VERSION}"
@@ -147,16 +135,6 @@ execute_vagrant_ssh_command() {
 
 @test "phpmd is in the PATH" {
     execute_vagrant_ssh_command "which phpmd"
-}
-
-@test "aws is in the PATH" {
-    execute_vagrant_ssh_command "which aws"
-}
-
-@test "Aws minimal version" {
-  version=$(execute_vagrant_ssh_command "aws --version | sed -E 's#aws-cli/([^ ]+).*#\1#g'")
-  run Version::compare "${version:-1}" "${MINIMAL_AWS_VERSION}"
-  [[ ${status} -ge 0 ]]
 }
 
 @test "The default admin user ${BASE_USER} is in the docker group" {

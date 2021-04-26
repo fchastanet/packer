@@ -108,6 +108,13 @@ export NVM_DIR="/usr/local/nvm"
 
 [[ -f "${HOME}/.bin/tmuxinator.bash" ]] && source "${HOME}/.bin/tmuxinator.bash"
 
+# enable autojump
+source /usr/share/autojump/autojump.sh
+
+# kubeps1
+source /opt/kubeps1/kube-ps1.sh
+PS1='[\u@\h \W $(kube_ps1)]\$ '
+
 [[ -f "${HOME}/.motd" ]] && source "${HOME}/.motd"
 
 # be sure it ends without any error code

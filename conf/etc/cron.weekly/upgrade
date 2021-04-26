@@ -1,0 +1,179 @@
+#!/bin/bash
+
+[  "${USER}" = "root" ] || {
+    (>&2 echo "This script need root access")
+    exit 1
+}
+
+rm -f /var/log/automatic-upgrade
+
+set -x
+set -o errexit
+set -o pipefail
+err_report() {
+    echo "$0 - Upgrade failure - Error on line $1"
+    exit 1
+}
+trap 'err_report $LINENO' ERR
+
+USERNAME=vagrant
+USERGROUP=vagrant
+USERHOME="/home/vagrant"
+
+as_user() {
+  sudo -u ${USERNAME} bash -c "$1"
+}
+
+retry() {
+  local n=1
+  local max=5
+  local delay=15
+  while true; do
+    "$@" && break || {
+      if [ $n -lt $max ]; then
+        ((n++))
+        (>&2 echo "Command failed. Attempt $n/$max:")
+        sleep $delay;
+      else
+        (>&2 echo "The command has failed after $n attempts.")
+        return 1
+      fi
+    }
+  done
+  return 0
+}
+
+get_latest_release() {
+  retry curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+    grep '"tag_name":' |                                            # Get tag line
+    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+}
+
+upgrade_hadolint() {
+  latestVersion="$(get_latest_release "hadolint/hadolint")"
+  retry wget -O /usr/local/bin/hadolint "https://github.com/hadolint/hadolint/releases/download/${latestVersion}/hadolint-Linux-x86_64"
+  chmod +x /usr/local/bin/hadolint
+}
+
+upgrade_nvm() {
+  if [ -d /usr/local/nvm ]; then
+    rm -Rf /usr/local/nvm
+  fi
+  mkdir "/usr/local/nvm" || true
+  chown -R ${USERNAME}:${USERGROUP} "/usr/local/nvm"
+  latestVersion="$(get_latest_release "nvm-sh/nvm")"
+  retry curl -o /tmp/install.sh "https://raw.githubusercontent.com/nvm-sh/nvm/${latestVersion}/install.sh"
+  chmod 755 /tmp/install.sh
+  as_user "NVM_DIR=/usr/local/nvm /tmp/install.sh"
+  rm -f /tmp/install.sh
+}
+
+upgrade_kubectx() {
+  if [ -d /opt/kubectx ]; then
+    (cd /opt/kubectx && git pull)
+  else
+    git clone https://github.com/ahmetb/kubectx /opt/kubectx
+  fi
+
+  mkdir /home/vagrant/.bash_completion.d || true
+
+  ln -sf /opt/kubectx/kubectx /usr/local/bin/kubectx
+  ln -sf /opt/kubectx/kubens /usr/local/bin/kubens
+  ln -sf /opt/kubectx/completion/kubens.bash /home/vagrant/.bash_completion.d/kubens
+  ln -sf /opt/kubectx/completion/kubectx.bash /home/vagrant/.bash_completion.d/kubectx
+}
+
+upgrade_kubectl() {
+  latestVersion="$(retry curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)"
+  retry curl -o /usr/local/bin/kubectl -LO "https://storage.googleapis.com/kubernetes-release/release/${latestVersion}/bin/linux/amd64/kubectl"
+  chmod +x /usr/local/bin/kubectl
+}
+
+upgrade_aws_azure_login() {
+  retry curl -o /usr/local/bin/aws-azure-login https://raw.githubusercontent.com/sportradar/aws-azure-login/main/docker-launch.sh
+  chmod o+x /usr/local/bin/aws-azure-login
+}
+
+upgrade_aws_cli() {
+  (
+    cd /tmp
+    rm -Rf ./aws
+    retry curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscli.zip"
+    unzip -o awscli.zip > /dev/null
+    if [[ -f /usr/local/bin/aws ]]; then
+      ./aws/install -i /usr/local/aws-cli -b /usr/local/bin --update
+    else
+      ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+    fi
+    rm -Rf ./aws
+    rm -f awscli.zip
+  )
+}
+
+upgrade_kube_ps1() {
+  if [ -d /opt/kubeps1 ]; then
+    (cd /opt/kubeps1 && git pull)
+  else
+    git clone https://github.com/jonmosco/kube-ps1.git /opt/kubeps1
+  fi
+}
+
+upgrade_docker_compose() {
+  latestVersion="$(get_latest_release "docker/compose")"
+  retry curl -L "https://github.com/docker/compose/releases/download/${latestVersion}/docker-compose-$(uname -s)-$(uname -m)" -o /tmp/docker-compose
+  mv /tmp/docker-compose /usr/local/bin/docker-compose
+  ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
+  chmod +x /usr/local/bin/docker-compose
+}
+
+upgrade_tmuxinator() {
+    # configure tmuxinator
+    mkdir -p ${USERHOME}/.bin
+    retry curl https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.bash -o ${USERHOME}/.bin/tmuxinator.bash
+    chown -R ${USERNAME}:${USERGROUP} ${USERHOME}/.bin
+
+    mkdir -p ${USERHOME}/.config/fish/completions
+    retry curl https://raw.githubusercontent.com/tmuxinator/tmuxinator/master/completion/tmuxinator.fish -o ${USERHOME}/.config/fish/completions/tmuxinator.fish
+    chown -R ${USERNAME}:${USERGROUP} ${USERHOME}/.config/fish/completions
+}
+
+{
+  # apt upgrade
+  retry apt update -y --fix-missing -o Acquire::ForceIPv4=true
+  retry apt upgrade -y
+  retry apt autoremove -y
+
+  # snap upgrade (helm, ...)
+  retry snap refresh
+
+  # composer upgrade
+  retry composer global self-update
+  retry as_user "composer global update"
+
+  # upgrade softwares
+  retry upgrade_hadolint
+  retry upgrade_nvm
+  retry upgrade_kubectx
+  retry upgrade_kubectl
+  retry upgrade_aws_azure_login
+  retry upgrade_aws_cli
+  retry upgrade_kube_ps1
+  retry upgrade_docker_compose
+  retry upgrade_tmuxinator
+
+  # upgrade nvm
+  retry as_user "source /usr/local/nvm/nvm.sh && nvm install stable --reinstall-packages-from=current"
+  # npm upgrade npm
+  retry as_user "source /usr/local/nvm/nvm.sh && npm install --force -g npm"
+  # npm install linters packages
+  retry as_user "source /usr/local/nvm/nvm.sh && npm install -g prettier sass-lint stylelint"
+  # npm install npm-check-updates
+  retry as_user "source /usr/local/nvm/nvm.sh && npm install -g npm-check-updates"
+  retry as_user "source /usr/local/nvm/nvm.sh && npm-check-updates -u -g"
+} | tee /var/log/automatic-upgrade && {
+  # everything OK
+  mv /var/log/automatic-upgrade /var/log/automatic-upgrade-success
+} || {
+  # we will know in motd if something has gone wrong
+  exit 0
+}

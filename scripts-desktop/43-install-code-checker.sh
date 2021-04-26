@@ -25,6 +25,7 @@ sudo -i -u ${USERNAME} bash -c "source /usr/local/nvm/nvm.sh && nvm install node
 # needed by composer : php-xml
 retry apt-get install -y -q --no-install-recommends \
     php \
+    php-curl \
     php-mbstring \
     php-xml \
     shellcheck
@@ -52,6 +53,7 @@ NODE_MODULES=(
     prettier
     sass-lint
     stylelint
+    npm-check-updates
 )
 CMD="cd "
 CMD+=" && source /tmp/common.sh"

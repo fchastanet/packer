@@ -7,10 +7,11 @@ retry apt-get -y update -o Acquire::ForceIPv4=true
 
 # Install browsers
 retry apt-get install -y -q --no-install-recommends \
-    file-roller \
-    gedit \
-    terminator \
-    tmux
+  autojump \
+  file-roller \
+  gedit \
+  terminator \
+  tmux
 
 # Install tmuxinator + tmuxinator dependencies
 retry apt-get install -y -q --no-install-recommends \

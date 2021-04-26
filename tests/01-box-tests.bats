@@ -3,6 +3,8 @@
 BASE_USER=vagrant
 CURRENT_DIR="$( cd "$( readlink -e "${BASH_SOURCE[0]%/*}" )" && pwd )"
 VBOX_SERVICE_VERSION="$(VBoxHeadless.exe --version | tail -1)"
+MINIMAL_DOCKER_COMPOSE_VERSION="1.28.6"
+MINIMAL_AWS_VERSION="2.1.33"
 
 execute_vagrant_ssh_command() {
     vagrant ssh -c "${*}" -- -n -T
@@ -52,4 +54,24 @@ execute_vagrant_ssh_command() {
 
 @test "check vb-guest is installed" {
      execute_vagrant_ssh_command "which /usr/sbin/VBoxService && sudo /usr/sbin/VBoxService --version | grep \"${VBOX_SERVICE_VERSION}\""
+}
+
+@test "aws is in the PATH" {
+    execute_vagrant_ssh_command "which aws"
+}
+
+@test "Aws minimal version" {
+  version=$(execute_vagrant_ssh_command "aws --version | sed -E 's#aws-cli/([^ ]+).*#\1#g'")
+  run Version::compare "${version:-1}" "${MINIMAL_AWS_VERSION}"
+  [[ ${status} -ge 0 ]]
+}
+
+@test "Docker Compose is in the PATH and executable" {
+  execute_vagrant_ssh_command "which docker-compose"
+}
+
+@test "Docker Compose minimal version" {
+  version=$(execute_vagrant_ssh_command "docker-compose -v | sed -rn 's/docker-compose version ([^,]+),.*/\1/p'")
+  run Version::compare ${version:-1} ${MINIMAL_DOCKER_COMPOSE_VERSION}
+  [[ ${status} -ge 0 ]]
 }
