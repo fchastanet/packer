@@ -121,9 +121,25 @@ variable "vagrantfile_template" {
 
 source "virtualbox-iso" "sourceIso" {
   boot_command             =  [
-    "<enter><enter><f6><esc><wait> ",
-    "autoinstall ds=nocloud-net;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/",
-    "<enter><wait>"
+    "<esc><esc><esc><esc>e<wait>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "<del><del><del><del><del><del><del><del>",
+    "linux /casper/vmlinuz --- autoinstall ds=\"nocloud-net;seedfrom=http://{{.HTTPIP}}:{{.HTTPPort}}/\"<enter><wait>",
+    "initrd /casper/initrd<enter><wait>",
+    "boot<enter>",
+    "<f10><wait>"
   ]
   boot_wait                = "5s"
   disk_size                = "${var.disk_size}"
@@ -146,7 +162,10 @@ source "virtualbox-iso" "sourceIso" {
   ssh_username             = "${var.ssh_username}"
   vboxmanage               = [
     ["modifyvm", "{{ .Name }}", "--memory", "${var.memory}"],
-    ["modifyvm", "{{ .Name }}", "--cpus", "${var.cpus}"]
+    ["modifyvm", "{{ .Name }}", "--cpus", "${var.cpus}"],
+    ["modifyvm", "{{ .Name }}", "--pae", "off"],
+    ["modifyvm", "{{ .Name }}", "--ioapic", "on"],
+    ["modifyvm", "{{ .Name }}", "--vram", "256"]
   ]
   virtualbox_version_file  = ".vbox_version"
   vm_name                  = "${var.ubuntu_version}-${var.box_version}-${var.desktop}"
@@ -165,8 +184,6 @@ build {
       "BOX_VERSION=${var.box_version}",
       "DEBIAN_FRONTEND=noninteractive",
       "DESKTOP=${var.desktop}",
-      "DOCKER_COMPOSE_VERSION=${var.docker_compose_version}",
-      "NVM_VERSION=${var.nvm_version}",
       "SSH_PASSWORD=${var.ssh_password}",
       "SSH_USERNAME=${var.ssh_username}",
       "USERGROUP=${var.usergroup}",

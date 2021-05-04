@@ -41,6 +41,11 @@ ${imageDesktopDesc}
 
 ## Releases
 
+### V4.0.0
+
+Release Date: 2021-04-30
+Upgraded to ubuntu 21
+
 ### V3.0.2
 
 Release Date: 2021-04-27

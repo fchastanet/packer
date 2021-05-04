@@ -34,11 +34,9 @@ packer validate ${PACKER_FILE}
 MSYS_NO_PATHCONV=1 PACKER_LOG=1 packer build \
     -var box_version="${BOX_VERSION}" \
     -var desktop="${BOX_PACKED}" \
-    -var docker_compose_version="${DOCKER_COMPOSE_VERSION}" \
     -var headless="${HEADLESS}" \
     -var iso_url="${UBUNTU_ISO_URL}" \
     -var iso_checksum="${UBUNTU_ISO_CHECKSUM}" \
-    -var nvm_version="${NVM_VERSION}" \
     -var ubuntu_version="${UBUNTU_VERSION}" \
     -var version="${BOX_VERSION}" \
     ${PACKER_FILE} 2>&1 | tee "${LOG_FILE}"

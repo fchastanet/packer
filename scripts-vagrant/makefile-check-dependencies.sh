@@ -5,7 +5,7 @@ CURRENT_DIR=$( cd "$( readlink -e "${BASH_SOURCE[0]%/*}" )" && pwd )
 # shellcheck source=conf/.bin/Utils.sh
 source "$(cd "${CURRENT_DIR}/../conf/.bin" && pwd)/Utils.sh"
 
-PACKER_MINIMAL_VERSION="1.7.1"
+PACKER_MINIMAL_VERSION="1.7.2"
 VAGRANT_MINIMAL_VERSION="2.2.15"
 VIRTUALBOX_MINIMAL_VERSION="6.1.18"
 AWS_MINIMAL_VERSION="2.1.33"

@@ -1,19 +1,18 @@
 #cloud-config
+version: 1
 autoinstall:
-  version: 1
-  locale: en_US
+  locale: en_US.UTF-8
   keyboard:
     layout: fr
     toggle: null
     variant: ''
   network:
-    network:
-      version: 2
-      ethernets:
-        enp0s3:
-          dhcp4: true
-        enp0s8:
-          dhcp4: true
+    version: 2
+    ethernets:
+      enp0s3:
+        dhcp4: true
+      enp0s8:
+        dhcp4: true
   storage:
     layout:
       name: lvm
@@ -50,3 +49,5 @@ autoinstall:
     - 'sed -i "s/dhcp4: true/&\n      dhcp-identifier: mac\n      nameservers:\n          addresses: [10.110.2.253, 8.8.8.8, 8.8.4.4]/" /target/etc/netplan/00-installer-config.yaml'
     - 'netplan generate && netplan apply'
     - 'echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /target/etc/sudoers.d/ubuntu'
+  updates: security
+  version: 1

@@ -5,7 +5,7 @@ source /tmp/common.sh
 # install nvm globally
 mkdir "/usr/local/nvm"
 chown -R ${USERNAME}:${USERGROUP} "/usr/local/nvm"
-curl -o /tmp/install.sh https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION:-0.37.2}/install.sh
+curl -o /tmp/install.sh https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION:-0.38.0}/install.sh
 chmod 755 /tmp/install.sh
 sudo -E -u ${USERNAME} bash -c "NVM_DIR=/usr/local/nvm /tmp/install.sh"
 rm -f /tmp/install.sh

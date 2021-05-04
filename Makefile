@@ -16,23 +16,23 @@ SCRIPTS_DESKTOP_FILES        := $(shell find "$(THIS_DIR)/scripts-desktop" -type
 # $ make BOX_VERSION=1.0.0 HEADLESS=false USER="customUser" BOX="box-bionic64" CLOUD_TOKEN="verysecrettoken" build
 # use this one if your vagrant cloud token is specifed in the file vagrant.token
 # $ make BOX_VERSION=1.0.0 HEADLESS=false USER="customUser" BOX="box-bionic64" build
-BOX_VERSION     ?= 3.0.2
+BOX_VERSION     ?= 4.0.0
 HEADLESS        ?= true
 CLOUD_TOKEN     ?= $(shell [[ -f vagrant.token ]] && cat vagrant.token || echo "no key provided")
 PROVIDER        ?= virtualbox
 # user for vagrant account
 USER            ?= fchastanet
-BOX			        ?= box-ubuntu20.04
+BOX			        ?= ubuntu21.04
 DESKTOP		      ?= lxde
 VM_NAME         ?= box-dev-env
 BOX_FILE_PREFIX := output-virtualbox
 
 # UBUNTU iso information
-UBUNTU_VERSION      := ubuntu-20.04
-BASE_UBUNTU_ISO_URL := https://releases.ubuntu.com/20.04
-UBUNTU_ISO_NAME     := ubuntu-20.04.2-live-server-amd64.iso
+UBUNTU_VERSION      := ubuntu-21.04
+BASE_UBUNTU_ISO_URL := https://releases.ubuntu.com/21.04
+UBUNTU_ISO_NAME     := ubuntu-21.04-live-server-amd64.iso
 UBUNTU_ISO_URL      := iso/$(UBUNTU_ISO_NAME)
-UBUNTU_ISO_CHECKSUM := d1f2bf834bbe9bb43faf16f9be992a6f3935e65be0edece1dee2aa6eb1767423
+UBUNTU_ISO_CHECKSUM := e4089c47104375b59951bad6c7b3ee5d9f6d80bfac4597e43a716bb8f5c1f3b0
 
 # dependencies versions
 DOCKER_COMPOSE_VERSION := 1.28.6

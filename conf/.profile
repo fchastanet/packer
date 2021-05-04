@@ -21,7 +21,7 @@ if [ -d "$HOME/.local/bin" ] ; then
 fi
 
 # Paths
-if [[ -d "${HOME}/projects/bash-tools/.bin" ]]; then
+if [[ -d "${HOME}/projects/bash-tools/bin" ]]; then
     export PATH="${HOME}/projects/bash-tools/bin:${PATH}"
 fi
 

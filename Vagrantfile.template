@@ -108,11 +108,14 @@ Vagrant.configure("2") do |config|
             # gnome requires 3d enabled
             v.customize ["modifyvm", :id, "--accelerate3d", "on"]
             v.customize ["modifyvm", :id, "--monitorcount", "1"]
+            v.customize ["modifyvm", :id, "--vram", "256"]
         end
 
         # Enabling the I/O APIC is required for 64-bit guest operating systems, especially Windows Vista;
         # it is also required if you want to use more than one virtual CPU in a VM.
         v.customize ["modifyvm", :id, "--ioapic", "on"]
+        # pae is only needed to allocate more than 4GB of memory on 32 bits OS
+        v.customize ["modifyvm", :id, "--pae", "off"]
         v.customize ["modifyvm", :id, "--vram", 128]
         v.customize ["modifyvm", :id, "--usb", "off"]
         # disable remote desktop

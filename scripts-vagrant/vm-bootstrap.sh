@@ -222,7 +222,7 @@ chmod +x /etc/cron.*/*
 retry apt-get update -y --fix-missing -o Acquire::ForceIPv4=true
 retry apt-get upgrade -y
 retry apt-get dist-upgrade -y
-/etc/cron.weekly/upgrade
+/etc/cron.weekly/upgrade || true
 
 # execute external conf post install
 [[ -f ${USERHOME}/.externalConfPostInstall.sh ]] && source ${USERHOME}/.externalConfPostInstall.sh
