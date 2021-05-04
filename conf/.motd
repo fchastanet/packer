@@ -41,6 +41,7 @@ else
 fi
 if [[ -f /var/log/automatic-upgrade ]]; then
   echo "$(tput setaf 1)(*) Weekly Automatic upgrade is failing -- please check logs /var/log/automatic-upgrade"
+  echo "$(tput setaf 1)(*) try to launch the prcess manually : sudo /etc/cron.weekly/upgrade"
 fi
 if [[ -f /var/log/automatic-upgrade-success ]]; then
   display_date_ago() {

@@ -5,7 +5,7 @@
     exit 1
 }
 
-rm -f /var/log/automatic-upgrade
+rm -f /var/log/automatic-upgrade /var/log/automatic-upgrade-success
 
 set -x
 set -o errexit
@@ -76,6 +76,7 @@ upgrade_kubectx() {
   fi
 
   mkdir /home/vagrant/.bash_completion.d || true
+  chown ${USERNAME}:${USERGROUP} "/home/vagrant/.bash_completion.d"
 
   ln -sf /opt/kubectx/kubectx /usr/local/bin/kubectx
   ln -sf /opt/kubectx/kubens /usr/local/bin/kubens
@@ -169,7 +170,7 @@ upgrade_tmuxinator() {
   retry as_user "source /usr/local/nvm/nvm.sh && npm install -g prettier sass-lint stylelint"
   # npm install npm-check-updates
   retry as_user "source /usr/local/nvm/nvm.sh && npm install -g npm-check-updates"
-  retry as_user "source /usr/local/nvm/nvm.sh && npm-check-updates -u -g"
+  retry as_user "cd "${USERHOME}" && source /usr/local/nvm/nvm.sh && npm-check-updates -u -g"
 } | tee /var/log/automatic-upgrade && {
   # everything OK
   mv /var/log/automatic-upgrade /var/log/automatic-upgrade-success
